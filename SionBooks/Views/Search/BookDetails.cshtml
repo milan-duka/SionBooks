@@ -1,0 +1,94 @@
+﻿@model SionBooks.Models.ViewModels.SearchModels.SearchResultModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Book</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Category)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Category.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Isbn)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Isbn)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Count)
+        </dt>
+        <dd class="col-sm-10" id="vote">
+            @Html.DisplayFor(model => model.Count)
+        </dd>
+        <dt class="col-sm-2">
+        </dt>
+        <dd class="col-sm-10">
+            <img src="/images/@Model.ImageUrl" class="img-thumbnail" style="width: 150px; height: 240px;" />
+        </dd>
+        @if (User.Identity.IsAuthenticated)
+        {
+            <dt class="col-sm-2">
+            </dt>
+            <dd class="col-sm-10" id="voted">
+                @Html.DisplayFor(model => model.Voted)
+            </dd>
+            <dt class="col-sm-2">
+            </dt>
+            <dd class="col-sm-10">
+                <input type="button" onclick="Vote(@Model.Id,'@User.Identity.Name', @Model.Count)" id="voteButton" value="Vote" />
+            </dd>
+        }
+    </dl>
+</div>
+<div>
+    <a asp-action="SearchBook">Back to Search</a>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script type="text/javascript">
+    function Vote(bookId, email, count) {
+        try {
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("Vote")",
+                data: { bookId: bookId, email: email },
+                success: function (oData) {
+                    var voteElement = "#vote";
+                    var votedElement = "#voted";
+                    if (oData > 0) {
+                        var result = count + oData;
+                        $(voteElement).html(result.toString());
+                        $(votedElement).html("Voted");
+                    }
+                },
+                error: function (error) {
+                    alert(error);
+                }
+            });
+        }
+        catch (e) {
+            alert(e.message);
+        }
+    }
+
+</script>

@@ -1,0 +1,151 @@
+﻿@model PaginatedList<SionBooks.Models.ViewModels.SearchModels.SearchResultModel>
+@{
+    ViewData["Title"] = "Search results";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayName("Title")
+            </th>
+            <th>
+                @Html.DisplayName("Category")
+            </th>
+            <th>
+                @Html.DisplayName("ISBN")
+            </th>
+            <th>
+                @Html.DisplayName("Description")
+            </th>
+            <th>
+                @Html.DisplayName("Book cover")
+            </th>
+            <th>
+                @Html.DisplayName("Votes")
+            </th>
+            @if (User.Identity.IsAuthenticated)
+            {
+                <th>
+                </th>
+                <th>
+                </th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <!--<a asp-action="Details" asp-route-id="item.Id">Html.DisplayFor(modelItem => item.Title)</a>-->
+                    @using (Html.BeginForm("BookDetails", "Search"))
+                    {
+                        /*@Html.Hidden("Id", item.Id)*/
+                        <input type="hidden" value="@item.Id" name="Id" runat="server">
+                        /*@Html.Hidden("Title", item.Title)*/
+                        <input type="hidden" value="@item.Title" name="Title" runat="server">
+                        <input type="hidden" value="@item.CategoryId" name="CategoryId" runat="server">
+                        /*@Html.Hidden("Isbn", item.Isbn)*/
+                        <input type="hidden" value="@item.Isbn" name="Isbn" runat="server">
+                        /*@Html.Hidden("Description", item.Description)*/
+                        <input type="hidden" value="@item.Description" name="Description" runat="server">
+                        /*@Html.Hidden("ImageUrl", item.ImageUrl)*/
+                        <input type="hidden" value="@item.ImageUrl" name="ImageUrl" runat="server">
+                        /*@Html.Hidden("Count", item.Count)*/
+                        <input type="hidden" value="@item.Count" name="Count" runat="server">
+                        /*@Html.Hidden("Voted", item.Voted)*/
+                        <input type="hidden" value="@item.Voted" name="Voted" runat="server">
+
+                        <input type="submit" value="@Html.DisplayFor(modelItem => item.Title)" />
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Category.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Isbn)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    <img src="/images/@Url.Content(item.ImageUrl)" class="img-thumbnail" style="width: 75px; height: 120px;" />
+                </td>
+                <td id="vote-@item.Id">
+                    @Html.DisplayFor(modelItem => item.Count)
+                </td>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <td>
+                        <input type="button" onclick="Vote(@item.Id,'@User.Identity.Name', @item.Count)" id="voteButton" value="Vote" />
+                    </td>
+                    <td id="voted-@item.Id">
+                        @Html.DisplayFor(modelItem => item.Voted)
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+<a asp-action="SearchResults"
+   asp-route-pageNumber="@(Model.PageIndex - 1)"
+   class="btn btn-default @prevDisabled">
+    Previous
+</a>
+<a asp-action="SearchResults"
+   asp-route-pageNumber="@(Model.PageIndex + 1)"
+   class="btn btn-default @nextDisabled">
+    Next
+</a>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script type="text/javascript">
+    function Vote(bookId, email, count) {
+        try {
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("Vote")",
+                data: { bookId: bookId, email: email },
+                success: function (oData) {
+                    var voteElement = "#vote-" + bookId + "";
+                    var votedElement = "#voted-" + bookId + "";
+                    if (oData > 0) {
+                        var result = count + oData;
+                        $(voteElement).html(result.toString());
+                        $(votedElement).html("Voted");
+                    }
+                },
+                error: function (error) {
+                    alert(error);
+                }
+            });
+        }
+        catch (e) {
+            alert(e.message);
+        }
+     }
+
+
+
+</script>
+
+<style>
+    input[type="submit"] {
+        border: none;
+        background: #fff;
+        color: blue;
+    }
+
+        input[type="submit"]:hover {
+            text-decoration: underline;
+        }
+</style>

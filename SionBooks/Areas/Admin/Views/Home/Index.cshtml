@@ -1,0 +1,17 @@
+﻿@{
+    ViewData["Title"] = "Admin Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Admin</h1>
+    <p>This is the admin dashboard.</p>
+</div>
+<div>
+    <table class="table text-center">
+        <tr>
+            <td><a asp-action="Index" asp-controller="Users" asp-area="Admin">Users</a></td>
+            <td><a asp-action="Index" asp-controller="Books" asp-area="Admin">Books</a></td>
+            <td><a asp-action="Index" asp-controller="BookCategories" asp-area="Admin">Book Categories</a></td>
+        </tr>
+    </table>
+</div>
